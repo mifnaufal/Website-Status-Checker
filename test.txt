@@ -1,0 +1,50 @@
+# Website Status Check Results
+# Generated: 2025-10-28 10:02:47 +0700
+# Total checked: 771
+# Filter: 200, 403
+# Found: 44
+
+https://www.sabal.com	200
+https://www.sabal.com/robots.txt	200
+https://www.sabal.com/	200
+https://www.sabal.com/wp-content/plugins/cf7-multi-step/assets/frontend/animate/animate.min.css?ver=2.7.9	200
+https://www.sabal.com/wp-content/plugins/cf7-multi-step/assets/frontend/css/cf7mls.css?ver=2.7.9	200
+https://www.sabal.com/wp-content/plugins/cf7-multi-step/assets/frontend/js/cf7mls.js?ver=2.7.9	200
+https://www.sabal.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=6.0.5	200
+https://www.sabal.com/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.0.5	200
+https://www.sabal.com/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.0.5	200
+https://www.sabal.com/wp-content/plugins/contact-form-7/modules/recaptcha/index.js?ver=6.0.5	200
+https://www.sabal.com/wp-content/themes/sabal-theme/build/bundle.js?ver=6.8.3	200
+https://www.sabal.com/wp-content/themes/sabal-theme/build/main.css?ver=6.8.3	200
+https://www.sabal.com/wp-content/themes/sabal-theme/src/js/vendor/jquery.min.js	200
+https://www.sabal.com/wp-includes/css/dist/block-library/style.min.css?ver=6.8.3	200
+https://www.sabal.com/wp-includes/js/dist/hooks.min.js?ver=4d63a3d491d11ffd8ac6	200
+https://www.sabal.com/wp-includes/js/dist/i18n.min.js?ver=5e580eb46a90c2b997e6	200
+https://www.sabal.com/wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=3.15.0	200
+https://www.sabal.com/wp-includes/js/wp-emoji-release.min.js?ver=6.8.3	200
+https://www.sabal.com/?s=ZAP,	200
+https://www.sabal.com/wp-includes/css/wp-embed-template-ie.min.css?ver=6.8.3,	200
+https://ideahall.com/	200
+https://maps.googleapis.com/maps/api/js?key=AIzaSyADMEUPqpvB-wEuvPivoaNGSB-qbfrkvPw&language=en	200
+https://www.google.com/recaptcha/api.js?render=6Lf---0iAAAAANJPOBgWk6PpW9OfB2xmsZ4W4oTs&ver=3.0	200
+https://daneden.github.io/animate.css/	200
+https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/	200
+https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE	200
+https://github.com/zloirock/core-js	200
+https://www.linkedin.com/in/pat-jackson-9a6657a/	200
+https://www.linkedin.com/in/barton-vaughan-0321476/	200
+https://www.linkedin.com/in/tony-trinh-82b97377/	200
+https://www.prnewswire.com/news-releases/greenbarn-investment-group-and-sabal-investment-holdings-lead-refinancing-of-817-broadway-in-manhattan-302591804.html?tc=eml_cleartime	200
+https://dorningroup.com/	200
+https://toroseequities.com/	200
+https://12-north.com/	200
+http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd	200
+https://www.maximcapitalgroup.com/	200
+https://upcampusproperties.com/	200
+https://www.palmor.com/	200
+https://bridgeinvest.com/	200
+https://www.palisadegrp.com/	200
+https://www.forbes.com/sites/tylerroush/2024/04/27/heres-what-led-to-republic-firsts-collapse-and-why-its-different-from-2023-failures/?sh=5b7cde275878	200
+https://www.pebbcap.com/	200
+https://nlihc.org/oor	200
+https://www.cbre.com/insights/books/us-real-estate-market-outlook-2023/multifamily	200
