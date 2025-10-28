@@ -10,15 +10,15 @@ A simple and colorful Ruby script to check website status codes and filter only 
 ### Method 1: Direct Download (Easiest)
 ```bash
 # Download the script
-curl -O https://raw.githubusercontent.com/yourusername/website-status-checker/main/status.rb
+curl -O https://raw.githubusercontent.com/mifnaufal/Website-Status-Checker
 
 # Or using wget
-wget https://raw.githubusercontent.com/yourusername/website-status-checker/main/status.rb
+wget https://raw.githubusercontent.com/mifnaufal/Website-Status-Checker
 ```
 
 ### Method 2: Clone Repository
 ```bash
-git clone https://github.com/yourusername/website-status-checker.git
+git clone https://github.com/mifnaufal/Website-Status-Checker
 cd website-status-checker
 ```
 
