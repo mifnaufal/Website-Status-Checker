@@ -1,12 +1,8 @@
-#!/usr/bin/env ruby
-# script status.rb
-
 require 'net/http'
 require 'uri'
 require 'optparse'
 require 'timeout'
 
-# Color codes for terminal output
 class String
   def colorize(color_code)
     "\e[#{color_code}m#{self}\e[0m"
@@ -195,7 +191,6 @@ class WebsiteChecker
   end
 end
 
-# Parse command line options
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{'status.rb'.bold} #{'input_file.txt'.cyan} #{'-o output_file.txt'.green}"
@@ -213,7 +208,6 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-# Validate arguments
 if ARGV.empty? || !options[:output]
   puts "❌ #{'Usage:'.bold.red} #{'status.rb input_file.txt -o output_file.txt'.yellow}"
   puts "   #{'Use -h for help'.blue}"
@@ -223,7 +217,6 @@ end
 input_file = ARGV[0]
 output_file = options[:output]
 
-# Run the website checker
 begin
   checker = WebsiteChecker.new(input_file, output_file)
   checker.check_websites
