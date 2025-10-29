@@ -30,8 +30,8 @@ class WebsiteChecker
         total_urls: 0,
         filtered_urls: 0,
         checked_urls: 0,
-        successful_checks: 0,
-        failed_checks: 0
+        successful_200: 0,
+        forbidden_403: 0
       },
       websites: []
     }
@@ -62,7 +62,7 @@ class WebsiteChecker
     puts "📊 #{'Total URLs:'.bold} #{@total_urls.to_s.blue}"
     puts "🚫 #{'Filtered out:'.bold} #{@filtered_count.to_s.yellow}" if @filtered_count > 0
     puts "⏰ #{'Timeout:'.bold} 10 seconds per request"
-    puts "💾 #{'Output:'.bold} JSON format\n\n"
+    puts "💾 #{'Output:'.bold} JSON format (only 200 & 403)\n\n"
     
     show_loading_animation
     
@@ -74,25 +74,29 @@ class WebsiteChecker
       if @verbose
         display_status(url, result)
       else
-        if [200, 403, 404, 500].include?(result[:status]) || result[:error]
+        # Only show 200 and 403 in non-verbose mode
+        if [200, 403].include?(result[:status])
           display_status(url, result)
         end
       end
       
-      website_data = {
-        url: url,
-        status: result[:status],
-        timestamp: Time.now.utc.iso8601
-      }
-      
-      if result[:error]
-        website_data[:error] = result[:error]
-        @results[:metadata][:failed_checks] += 1
-      else
-        @results[:metadata][:successful_checks] += 1
+      # Only store 200 and 403 status in results
+      if [200, 403].include?(result[:status])
+        website_data = {
+          url: url,
+          status: result[:status],
+          timestamp: Time.now.utc.iso8601
+        }
+        
+        if result[:status] == 200
+          @results[:metadata][:successful_200] += 1
+        elsif result[:status] == 403
+          @results[:metadata][:forbidden_403] += 1
+        end
+        
+        @results[:websites] << website_data
       end
       
-      @results[:websites] << website_data
       @results[:metadata][:checked_urls] = @checked_count
     end
     
@@ -107,7 +111,7 @@ class WebsiteChecker
     banner = <<~BANNER
     #{'┌' + '─' * 50 + '┐'.blue}
     #{'│'.blue} #{'🌐 WEBSITE STATUS CHECKER'.bold.magenta} #{'│'.blue.rjust(23)}
-    #{'│'.blue} #{'Clean Output - Filtered Scan'.cyan} #{'│'.blue.rjust(20)}
+    #{'│'.blue} #{'Clean Output - Only 200 & 403'.cyan} #{'│'.blue.rjust(17)}
     #{'└' + '─' * 50 + '┘'.blue}
     BANNER
     puts banner
@@ -208,7 +212,6 @@ class WebsiteChecker
     
     status = result[:status]
     
-    # Only display interesting status codes
     case status
     when 200
       puts "✅ #{'LIVE'.bold.green} #{url.cyan}"
@@ -217,7 +220,7 @@ class WebsiteChecker
     when 404
       puts "❓ #{'NOT FOUND'.bold.blue} #{url.cyan}" if @verbose
     when 500..599
-      puts "💥 #{'SERVER ERROR'.bold.red} #{url.cyan}"
+      puts "💥 #{'SERVER ERROR'.bold.red} #{url.cyan}" if @verbose
     when "TIMEOUT", "NETWORK_ERROR", "ERROR"
       puts "❌ #{'ERROR'.bold.red} #{url.cyan} (#{status})" if @verbose
     when nil
@@ -230,19 +233,8 @@ class WebsiteChecker
   end
 
   def write_results_to_file
-    # Only include websites with interesting status codes in the output
-    filtered_results = {
-      metadata: @results[:metadata],
-      websites: @results[:websites].select do |website|
-        # Keep only websites with status 200, 403, or server errors
-        [200, 403, 404, 500, 502, 503].include?(website[:status]) || 
-        (400..499).include?(website[:status]) ||
-        (500..599).include?(website[:status])
-      end
-    }
-    
-    # Create pretty JSON with indentation
-    json_data = JSON.pretty_generate(filtered_results, indent: '  ', space: ' ', object_nl: "\n")
+    # JSON sudah hanya berisi 200 dan 403 karena kita filter saat proses
+    json_data = JSON.pretty_generate(@results, indent: '  ', space: ' ', object_nl: "\n")
     
     File.open(@output_file, 'w') do |file|
       file.write(json_data)
@@ -250,61 +242,50 @@ class WebsiteChecker
   end
 
   def display_summary
-    websites = @results[:websites]
-    successful = websites.count { |w| w[:status] == 200 }
-    forbidden = websites.count { |w| w[:status] == 403 }
-    not_found = websites.count { |w| w[:status] == 404 }
-    server_errors = websites.count { |w| w[:status].is_a?(Integer) && w[:status] >= 500 }
-    client_errors = websites.count { |w| w[:status].is_a?(Integer) && w[:status] >= 400 && w[:status] < 500 && w[:status] != 403 && w[:status] != 404 }
-    errors = @results[:metadata][:failed_checks]
+    successful = @results[:metadata][:successful_200]
+    forbidden = @results[:metadata][:forbidden_403]
 
     puts "\n"
     puts "┌#{'─' * 50}┐".green
     puts "│#{'📊 SCAN SUMMARY'.bold.center(50)}│".green
     puts "├#{'─' * 50}┤".green
-    puts "│ #{'Total URLs in file:'.ljust(28)} #{@results[:metadata][:total_urls].to_s.rjust(20).blue} │".green
-    puts "│ #{'Filtered out:'.ljust(28)} #{@filtered_count.to_s.rjust(20).yellow} │".green if @filtered_count > 0
-    puts "│ #{'Checked URLs:'.ljust(28)} #{@checked_count.to_s.rjust(20).cyan} │".green
+    puts "│ #{'Total URLs in file:'.ljust(30)} #{@results[:metadata][:total_urls].to_s.rjust(18).blue} │".green
+    puts "│ #{'Filtered out:'.ljust(30)} #{@filtered_count.to_s.rjust(18).yellow} │".green if @filtered_count > 0
+    puts "│ #{'Checked URLs:'.ljust(30)} #{@checked_count.to_s.rjust(18).cyan} │".green
     puts "├#{'─' * 50}┤".green
-    puts "│ #{'✅ Live (200):'.ljust(28)} #{successful.to_s.rjust(20).green} │".green
-    puts "│ #{'🔒 Forbidden (403):'.ljust(28)} #{forbidden.to_s.rjust(20).yellow} │".green
-    puts "│ #{'❓ Not Found (404):'.ljust(28)} #{not_found.to_s.rjust(20).blue} │".green if not_found > 0
-    puts "│ #{'💥 Server Errors (5xx):'.ljust(28)} #{server_errors.to_s.rjust(20).red} │".green if server_errors > 0
-    puts "│ #{'⚠️  Client Errors (4xx):'.ljust(28)} #{client_errors.to_s.rjust(20).magenta} │".green if client_errors > 0
-    puts "│ #{'❌ Other Errors:'.ljust(28)} #{errors.to_s.rjust(20).red} │".green if errors > 0
+    puts "│ #{'✅ Live (200):'.ljust(30)} #{successful.to_s.rjust(18).green} │".green
+    puts "│ #{'🔒 Forbidden (403):'.ljust(30)} #{forbidden.to_s.rjust(18).yellow} │".green
     puts "└#{'─' * 50}┘".green
     
     puts "\n💾 #{'Clean results saved to:'.bold} #{@output_file.underline.cyan}"
     
-    # Display only interesting findings
-    interesting_websites = websites.select { |w| [200, 403, 404, 500, 502, 503].include?(w[:status]) || (400..599).include?(w[:status]) }
-    
-    if interesting_websites.any?
+    # Display only 200 and 403 findings
+    if @results[:websites].any?
       puts "\n🎯 #{'INTERESTING FINDINGS:'.bold.magenta}"
       
       if successful > 0
         puts "\n#{'✅ Live Websites (200 OK):'.bold.green}"
-        interesting_websites.select { |w| w[:status] == 200 }.each do |website|
+        @results[:websites].select { |w| w[:status] == 200 }.each do |website|
           puts "  🔗 #{website[:url].cyan}"
         end
       end
       
       if forbidden > 0
         puts "\n#{'🔒 Forbidden (403):'.bold.yellow}"
-        interesting_websites.select { |w| w[:status] == 403 }.each do |website|
+        @results[:websites].select { |w| w[:status] == 403 }.each do |website|
           puts "  🔗 #{website[:url].cyan}"
         end
       end
-      
-      if server_errors > 0
-        puts "\n#{'💥 Server Errors:'.bold.red}"
-        interesting_websites.select { |w| w[:status] >= 500 }.each do |website|
-          puts "  🔗 #{website[:url].cyan} (#{website[:status]})"
-        end
-      end
     else
-      puts "\n😔 #{'No interesting websites found.'.bold.red}"
+      puts "\n😔 #{'No websites with status 200 or 403 found.'.bold.red}"
     end
+    
+    puts "\n📋 #{'JSON Structure:'.bold}"
+    puts "   📁 metadata - Scan information and statistics"
+    puts "   📁 websites - Array of websites with status 200 & 403 only"
+    puts "   ├── url: Website URL"
+    puts "   ├── status: HTTP status (200 or 403)"
+    puts "   └── timestamp: When the check was performed"
     
     puts "\n🎉 #{'Scan completed!'.bold.green}"
   end
@@ -328,11 +309,11 @@ OptionParser.new do |opts|
     puts opts
     puts "\n#{'Examples:'.bold}"
     puts "  ruby status.rb websites.txt -o results.json"
-    puts "  ruby status.rb urls.txt -o clean_results.json --verbose"
+    puts "  ruby status.rb urls.txt -o results.json --verbose"
     puts "\n#{'Features:'.bold}"
-    puts "  🚫 Automatically filters images, PDFs, archives, etc."
-    puts "  📋 Clean output showing only interesting results"
-    puts "  💾 JSON output with filtered data"
+    puts "  🚫 Automatically filters images, PDFs, media files, etc."
+    puts "  ✅ Output JSON only contains status 200 & 403"
+    puts "  📋 Clean output showing only 200 & 403 results"
     puts "  🔍 Use --verbose to see all requests"
     exit
   end
